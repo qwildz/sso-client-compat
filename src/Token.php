@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use OutOfBoundsException;
 use RuntimeException;
 
-class TokenValidator
+class Token
 {
     private $payload;
     private $header;
