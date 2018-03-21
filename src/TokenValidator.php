@@ -21,8 +21,8 @@ class TokenValidator
         $this->signature = $this->parseSignature($this->header, $data[2]);
 
         foreach ($this->claims as $name => $value) {
-            if (isset($header[$name])) {
-                $header[$name] = $value;
+            if (isset($this->header[$name])) {
+                $this->header[$name] = $value;
             }
         }
 
@@ -72,6 +72,8 @@ class TokenValidator
 
     public function isExpired()
     {
+        if(! $this->getClaim('exp')) return false;
+
         $expTime = $this->getClaim('exp', time());
         return time() > $expTime - (1 * 60);
     }
@@ -115,7 +117,7 @@ class TokenValidator
 
         $hash = $this->base64UrlDecode($data);
 
-        return new Signature($hash);
+        return $hash;
     }
 
     private function base64UrlDecode($data)
