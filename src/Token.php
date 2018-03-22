@@ -72,7 +72,7 @@ class Token
 
     public function isExpired()
     {
-        if(! $this->getClaim('exp')) return false;
+        if(! $this->hasClaim('exp')) return false;
 
         $expTime = $this->getClaim('exp', time());
         return time() > $expTime - (1 * 60);
