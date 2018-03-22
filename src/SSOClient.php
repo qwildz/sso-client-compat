@@ -17,6 +17,10 @@ class SSOClient
     }
 
     static public function handleLogin() {
+        if (session_id() == '') {
+            session_start();
+        }
+
         $isSecure = false;
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
             $isSecure = true;
@@ -45,6 +49,8 @@ class SSOClient
             $_SESSION['access_token'] = $token->access_token;
 
             if(static::session('access_token')) {
+                session_regenerate_id();
+
                 $user = static::apiRequest(static::$config['endpoint'].'/api/user');
 
                 static::apiRequest(static::$config['endpoint'].'/session/set-sid', array(
