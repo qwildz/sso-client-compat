@@ -46,6 +46,11 @@ class SSOClient
 
             if(static::session('access_token')) {
                 $user = static::apiRequest(static::$config['endpoint'].'/api/user');
+
+                static::apiRequest(static::$config['endpoint'].'/session/set-sid', array(
+                    'sid' => session_id(),
+                ));
+
                 return $user;
             } else {
                 header('Location: '.self::$config['home']);
