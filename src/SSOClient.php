@@ -95,11 +95,12 @@ class SSOClient
 
         $_SESSION = array();
         session_destroy();
+        session_regenerate_id(true);
 
-        echo 'Success';
+        echo 200;
     }
 
-    static private function apiRequest($url, $post = true, $headers = array())
+    static private function apiRequest($url, $post = false, $headers = array())
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -135,7 +136,7 @@ class SSOClient
         return (
             hash_equals(static::$config['endpoint'], $claims['iss'])
             && hash_equals(static::$config['client_id'], $claims['aud'])
-            && ((time() - 30) <= $claims['aud'] && $claims['aud'] <= (time() + 30))
+            && ((time() - 30) <= $claims['iat'] && $claims['iat'] <= (time() + 30))
         );
     }
 
