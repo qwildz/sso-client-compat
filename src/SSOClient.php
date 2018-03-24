@@ -63,7 +63,6 @@ class SSOClient
                 die();
             }
         } else {
-            // Start the login process by sending the user to Github's authorization page
             // Generate a random hash and store in the session for security
             $_SESSION['state'] = hash('sha256', microtime(TRUE).rand().$_SERVER['REMOTE_ADDR']);
             unset($_SESSION['access_token']);
@@ -78,6 +77,13 @@ class SSOClient
             // Redirect the user to Github's authorization page
             header('Location: ' . static::$config['endpoint'] . '/oauth/authorize?' . http_build_query($params));
             die();
+        }
+    }
+
+    static public function logout()
+    {
+        if($token = self::session('access_token')) {
+            static::apiRequest(static::$config['endpoint'].'/session/'.$token, false, array(), 'DELETE');
         }
     }
 
@@ -111,11 +117,15 @@ class SSOClient
         echo 200;
     }
 
-    static private function apiRequest($url, $post = false, $headers = array())
+    static private function apiRequest($url, $post = false, $headers = array(), $method = null)
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cacert.pem');
+
+        if($method) {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        }
 
         if ($post) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
