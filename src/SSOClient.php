@@ -1,7 +1,5 @@
 <?php
 
-namespace Qwildz\SSOClient;
-
 class SSOClient
 {
     static private $config = array(

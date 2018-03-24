@@ -1,11 +1,5 @@
 <?php
 
-namespace Qwildz\SSOClient;
-
-use InvalidArgumentException;
-use OutOfBoundsException;
-use RuntimeException;
-
 class Token
 {
     private $payload;

@@ -25,9 +25,7 @@
         }
     ],
     "autoload": {
-        "psr-4": {
-            "Qwildz\\SSOClient\\": "src/"
-        }
+        "classmap": ["src/"]
     },
     "minimum-stability": "dev",
     "prefer-stable": true
