@@ -11,7 +11,7 @@ class SSOClient
 
     static public function setConfig($config)
     {
-        static::$config = $config;
+        self::$config = $config;
     }
 
     static public function handleLogin() {
@@ -28,30 +28,30 @@ class SSOClient
         }
         $REQUEST_PROTOCOL = $isSecure ? 'https://' : 'http://';
 
-        if(static::get('code')) {
+        if(self::get('code')) {
             // Verify the state matches our stored state
-            if(!static::get('state') || $_SESSION['state'] != static::get('state')) {
+            if(!self::get('state') || $_SESSION['state'] != self::get('state')) {
                 header('Location: ' . $_SERVER['PHP_SELF']);
                 die();
             }
             // Exchange the auth code for a token
-            $token = static::apiRequest(static::$config['endpoint'].'/oauth/token', array(
-                'client_id' => static::$config['client_id'],
-                'client_secret' => static::$config['client_secret'],
+            $token = self::apiRequest(self::$config['endpoint'].'/oauth/token', array(
+                'client_id' => self::$config['client_id'],
+                'client_secret' => self::$config['client_secret'],
                 'redirect_uri' => $REQUEST_PROTOCOL . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
                 'state' => $_SESSION['state'],
-                'code' => static::get('code'),
+                'code' => self::get('code'),
                 'grant_type' => 'authorization_code'
             ));
 
             $_SESSION['access_token'] = $token->access_token;
 
-            if(static::session('access_token')) {
+            if(self::session('access_token')) {
                 session_regenerate_id();
 
-                $user = static::apiRequest(static::$config['endpoint'].'/api/user');
+                $user = self::apiRequest(self::$config['endpoint'].'/api/user');
 
-                static::apiRequest(static::$config['endpoint'].'/session/set-sid', array(
+                self::apiRequest(self::$config['endpoint'].'/session/set-sid', array(
                     'sid' => session_id(),
                 ));
 
@@ -66,14 +66,14 @@ class SSOClient
             unset($_SESSION['access_token']);
             $params = array(
                 'response_type' => 'code',
-                'client_id' => static::$config['client_id'],
+                'client_id' => self::$config['client_id'],
                 'redirect_uri' => $REQUEST_PROTOCOL . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
                 'scope' => '*',
                 'state' => $_SESSION['state']
             );
 
             // Redirect the user to Github's authorization page
-            header('Location: ' . static::$config['endpoint'] . '/oauth/authorize?' . http_build_query($params));
+            header('Location: ' . self::$config['endpoint'] . '/oauth/authorize?' . http_build_query($params));
             die();
         }
     }
@@ -81,7 +81,7 @@ class SSOClient
     static public function logout()
     {
         if($token = self::session('access_token')) {
-            static::apiRequest(static::$config['endpoint'].'/session/'.$token, false, array(), 'DELETE');
+            self::apiRequest(self::$config['endpoint'].'/session/'.$token, false, array(), 'DELETE');
         }
     }
 
@@ -93,12 +93,12 @@ class SSOClient
         $token->parse($logoutToken);
         $claims = $token->getClaims();
 
-        if ((!$token->verify(static::$config['client_secret']) || !self::validateLogoutToken($claims))
+        if ((!$token->verify(self::$config['client_secret']) || !self::validateLogoutToken($claims))
             || (!$token->hasClaim('sid'))
             || (!$token->hasClaim('events'))
             || (!array_key_exists('http://schemas.openid.net/event/backchannel-logout', (array)$claims['events']))
             || ($token->hasClaim('nonce'))) {
-            static::badRequest();
+            self::badRequest();
         }
 
         if (session_id() == '') {
@@ -130,8 +130,8 @@ class SSOClient
         }
 
         $headers[] = 'Accept: application/json';
-        if (static::session('access_token')) {
-            $headers[] = 'Authorization: Bearer ' . static::session('access_token');
+        if (self::session('access_token')) {
+            $headers[] = 'Authorization: Bearer ' . self::session('access_token');
         }
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -153,8 +153,8 @@ class SSOClient
     static private function validateLogoutToken($claims)
     {
         return (
-            hash_equals(static::$config['endpoint'], $claims['iss'])
-            && hash_equals(static::$config['client_id'], $claims['aud'])
+            hash_equals(self::$config['endpoint'], $claims['iss'])
+            && hash_equals(self::$config['client_id'], $claims['aud'])
             && ((time() - 30) <= $claims['iat'] && $claims['iat'] <= (time() + 30))
         );
     }
