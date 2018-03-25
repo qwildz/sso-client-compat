@@ -14,8 +14,8 @@
         "session"
     ],
     "require": {
-        "php":">=5.2",
-        "realityking/hash_equals": "dev-master"
+        "php":">=5.3",
+        "firebase/php-jwt": "^5.0"
     },
     "license": "MIT",
     "authors": [

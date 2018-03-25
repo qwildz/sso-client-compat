@@ -1,5 +1,9 @@
 <?php
 
+namespace Qwildz\SSOClient;
+
+use Firebase\JWT\JWT;
+
 class SSOClient
 {
     static private $config = array(
@@ -97,9 +101,15 @@ class SSOClient
     {
         $logoutToken = $_POST['token'];
 
-        $token = new Token();
-        $token->parse($logoutToken);
-        $claims = $token->getClaims();
+        $token = new \stdClass();
+
+        try {
+            $token = JWT::decode($logoutToken, self::$config['client_secret'], array('HS256'));
+        } catch (\Exception $e) {
+            self::badRequest();
+        }
+
+        $claims = (array) $token;
 
         if ((!$token->verify(self::$config['client_secret']) || !self::validateLogoutToken($claims))
             || (!$token->hasClaim('sid'))
