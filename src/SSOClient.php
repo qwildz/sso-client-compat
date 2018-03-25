@@ -111,11 +111,11 @@ class SSOClient
 
         $claims = (array) $token;
 
-        if ((!$token->verify(self::$config['client_secret']) || !self::validateLogoutToken($claims))
-            || (!$token->hasClaim('sid'))
-            || (!$token->hasClaim('events'))
+        if ((!self::validateLogoutToken($claims))
+            || (!array_key_exists('sid', $claims))
+            || (!array_key_exists('events', $claims))
             || (!array_key_exists('http://schemas.openid.net/event/backchannel-logout', (array)$claims['events']))
-            || ($token->hasClaim('nonce'))) {
+            || (array_key_exists('nonce', $claims))) {
             self::badRequest();
         }
 
