@@ -128,8 +128,7 @@ class SSOClient
 
         $_SESSION = array();
         session_destroy();
-        session_regenerate_id(true);
-
+        
         echo 200;
     }
 
