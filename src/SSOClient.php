@@ -83,6 +83,14 @@ class SSOClient
         if($token = self::session('access_token')) {
             self::apiRequest(self::$config['endpoint'].'/session/'.$token, false, array(), 'DELETE');
         }
+
+        if (session_id() == '') {
+            session_start();
+        }
+
+        $_SESSION = array();
+        session_destroy();
+        session_regenerate_id(true);
     }
 
     static public function handleLogout()

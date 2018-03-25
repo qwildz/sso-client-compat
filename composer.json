@@ -14,7 +14,7 @@
         "session"
     ],
     "require": {
-        "php":">=5.1.2",
+        "php":">=5.2",
         "realityking/hash_equals": "dev-master"
     },
     "license": "MIT",

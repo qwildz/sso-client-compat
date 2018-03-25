@@ -66,7 +66,7 @@ class Token
 
     public function isExpired()
     {
-        if(! $this->hasClaim('exp')) return false;
+        if (!$this->hasClaim('exp')) return false;
 
         $expTime = $this->getClaim('exp', time());
         return time() > $expTime - (1 * 60);
@@ -89,7 +89,7 @@ class Token
 
     private function parseHeader($data)
     {
-        $header = (array) $this->jsonDecode($this->base64UrlDecode($data));
+        $header = (array)$this->jsonDecode($this->base64UrlDecode($data));
 
         if (isset($header['enc'])) {
             throw new InvalidArgumentException('Encryption is not supported yet');
@@ -100,7 +100,7 @@ class Token
 
     private function parseClaims($data)
     {
-        return (array) $this->jsonDecode($this->base64UrlDecode($data));
+        return (array)$this->jsonDecode($this->base64UrlDecode($data));
     }
 
     private function parseSignature(array $header, $data)
@@ -127,8 +127,12 @@ class Token
     {
         $data = json_decode($json);
 
-        if (json_last_error() != JSON_ERROR_NONE) {
-            throw new RuntimeException('Error while decoding to JSON: ' . json_last_error_msg());
+        if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+            if (json_last_error() != JSON_ERROR_NONE) {
+                throw new RuntimeException('Error while decoding to JSON: ' . json_last_error_msg());
+            }
+        } else if ($data == null) {
+            throw new RuntimeException('Error while decoding to JSON');
         }
 
         return $data;
