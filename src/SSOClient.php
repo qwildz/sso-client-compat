@@ -80,12 +80,12 @@ class SSOClient
 
     static public function logout()
     {
-        if($token = self::session('access_token')) {
-            self::apiRequest(self::$config['endpoint'].'/session/'.$token, false, array(), 'DELETE');
-        }
-
         if (session_id() == '') {
             session_start();
+        }
+
+        if($token = self::session('access_token')) {
+            self::apiRequest(self::$config['endpoint'].'/session/'.session_id(), false, array(), 'DELETE');
         }
 
         $_SESSION = array();
