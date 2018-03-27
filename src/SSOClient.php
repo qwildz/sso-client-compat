@@ -6,6 +6,7 @@ class SSOClient
         'client_id' => '',
         'client_secret' => '',
         'endpoint' => '',
+        'redirect' => '',
         'home' => '',
     );
 
@@ -28,6 +29,12 @@ class SSOClient
         }
         $REQUEST_PROTOCOL = $isSecure ? 'https://' : 'http://';
 
+        if(self::$config['redirect'] == '') {
+            $redirect = $REQUEST_PROTOCOL . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
+        } else {
+            $redirect = self::$config['redirect'];
+        }
+
         if(self::get('code')) {
             // Verify the state matches our stored state
             if(!self::get('state') || $_SESSION['state'] != self::get('state')) {
@@ -38,7 +45,7 @@ class SSOClient
             $token = self::apiRequest(self::$config['endpoint'].'/oauth/token', array(
                 'client_id' => self::$config['client_id'],
                 'client_secret' => self::$config['client_secret'],
-                'redirect_uri' => $REQUEST_PROTOCOL . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
+                'redirect_uri' => $redirect,
                 'state' => $_SESSION['state'],
                 'code' => self::get('code'),
                 'grant_type' => 'authorization_code'
@@ -67,7 +74,7 @@ class SSOClient
             $params = array(
                 'response_type' => 'code',
                 'client_id' => self::$config['client_id'],
-                'redirect_uri' => $REQUEST_PROTOCOL . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
+                'redirect_uri' => $redirect,
                 'scope' => '*',
                 'state' => $_SESSION['state']
             );
